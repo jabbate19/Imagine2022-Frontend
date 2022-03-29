@@ -1,0 +1,11 @@
+{
+  "short_name": "Sentinel Security Frontend",
+  "name": "Sentinel Security Frontend",
+  "start_url": "./index.html",
+  "dir": "auto",
+  "display": "standalone",
+  "lang": "en",
+  "orientation": "portrait",
+  "theme_color": "#b0197e",
+  "background_color": "#ffffff"
+}

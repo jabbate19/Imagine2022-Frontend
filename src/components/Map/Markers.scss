@@ -1,0 +1,22 @@
+@import "MarkersVars";
+
+.marker {
+  background-color: $markerColor;
+  border: $markerBorder;
+  border-radius: 100%; // Circle
+  width: $markerSize;
+  height: $markerSize;
+  cursor: pointer;
+}
+
+.mapboxgl-popup {
+  max-width: $popupMaxWidth;
+}
+
+.mapboxgl-popup-content {
+  text-align: center;
+  font-family: $popupFont;
+  background-color: $popupBackgroundColor;
+  border: $popupBorder;
+  border-radius: $popupBorderRadius;
+}
