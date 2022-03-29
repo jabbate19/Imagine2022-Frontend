@@ -48,8 +48,8 @@ class MarkerManager {
             : [coordinates.longitude, coordinates.latitude],
       },
       properties: {
-        title: "Fuck you",
-        description: "Get some bitches",
+        title: "Hacker",
+        description: "Bruh",
       },
     };
   }
