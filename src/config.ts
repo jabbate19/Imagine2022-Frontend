@@ -1,3 +1,4 @@
+// SSO
 const configuration = {
   client_id: process.env.REACT_APP_SSO_CLIENT_ID,
   redirect_uri: `${window.location.protocol}//${window.location.hostname}${

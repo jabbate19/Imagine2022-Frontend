@@ -1,24 +1,9 @@
 import mapboxgl from "mapbox-gl";
-import React from "react";
+import * as APIMiddleware from "./APIMiddleware";
+import { MutableMapRef, PointObject, Coordinates, Beacon } from "./types";
+
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 import "./Markers.scss";
-
-type PointObject = {
-  name: string;
-  type: "Feature";
-  onClickCallback?: EventListener;
-  geometry: {
-    type: "Point";
-    coordinates: [number, number];
-  };
-  properties: {
-    title: string;
-    description: string;
-  };
-};
-
-type Coordinate = mapboxgl.LngLat | { latitude: number; longitude: number };
-type MutableMapRef = React.MutableRefObject<mapboxgl.Map | undefined>;
 
 class MarkerManager {
   _geojson: { type: string; features: PointObject[] };
@@ -31,9 +16,21 @@ class MarkerManager {
     this._map = map;
   }
 
+  _parseCoordinatesForJSON(coordinates: Coordinates): [number, number] {
+    /**
+     * Parses the given coordinates for use in the _geojson.
+     * For some reason it takes longitude first rather than
+     * latitude (which is corroborated by the mapboxgl.LngLat)
+     * type. I have no idea why.
+     */
+    return coordinates instanceof mapboxgl.LngLat
+      ? [coordinates.lng, coordinates.lat]
+      : [coordinates.longitude, coordinates.latitude];
+  }
+
   _generatePointJSON(
     name: string,
-    coordinates: Coordinate,
+    coordinates: Coordinates,
     onClickCallback?: EventListener
   ): PointObject {
     return {
@@ -42,10 +39,7 @@ class MarkerManager {
       onClickCallback: onClickCallback ? onClickCallback : undefined,
       geometry: {
         type: "Point",
-        coordinates:
-          coordinates instanceof mapboxgl.LngLat
-            ? [coordinates.lng, coordinates.lat]
-            : [coordinates.longitude, coordinates.latitude],
+        coordinates: this._parseCoordinatesForJSON(coordinates),
       },
       properties: {
         title: "Hacker",
@@ -56,9 +50,9 @@ class MarkerManager {
 
   addMarker(
     name: string,
-    coordinates: Coordinate,
+    coordinates: Coordinates,
     onClickCallback?: EventListener
-  ): void {
+  ) {
     let markerJSON = this._generatePointJSON(
       name,
       coordinates,
@@ -67,14 +61,20 @@ class MarkerManager {
     this._geojson.features.push(markerJSON);
   }
 
-  removeMarker(name: string) {
+  removeMarker(name: string): void {
     document.getElementById(name)?.remove();
     this._geojson.features = this._geojson.features.filter(
       (feature) => feature.name !== name
     );
   }
 
-  updateMarkers(): void {
+  updateHackerLocations(beacons: Beacon[]) {
+    for (const beacon of beacons) {
+      this.addMarker(beacon.id, beacon.absolutePosition);
+    }
+  }
+
+  updateMarkers() {
     if (this._map.current) {
       // add markers to map
       for (const feature of this._geojson.features) {

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "tasrget": "es2020",
+    "target": "es2020",
     "module": "esnext",
     "lib": [
       "dom",

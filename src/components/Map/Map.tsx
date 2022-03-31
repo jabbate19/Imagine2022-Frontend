@@ -1,11 +1,12 @@
 import React, { useRef, useState, useLayoutEffect, createRef } from "react";
 import mapboxgl from "mapbox-gl";
 import MarkerManager from "./Markers";
+import { retrieveBeacons } from "./APIMiddleware";
 
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 import "./Map.scss";
 
-const MARKER_UPDATE_INTERAL_MS = 1000;
+const MARKER_UPDATE_INTERAL_MS = 10000;
 
 const STARTING_COORDINATES = [43.08492599904675, -77.6674244050181];
 const STARTING_PITCH = 45;
@@ -20,6 +21,9 @@ const MAX_BOUNDS = new mapboxgl.LngLatBounds(
 );
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN || "";
+
+/*
+Commented for future reference
 
 class HelloWorldControl {
   _map: mapboxgl.Map | undefined;
@@ -37,7 +41,7 @@ class HelloWorldControl {
     this._container?.parentNode?.removeChild(this._container);
     this._map = undefined;
   }
-}
+}*/
 
 const Map: React.FunctionComponent = () => {
   const mapContainer: React.RefObject<HTMLDivElement> = createRef();
@@ -47,10 +51,23 @@ const Map: React.FunctionComponent = () => {
   const [_long, setLng] = useState(STARTING_COORDINATES[1]);
   const [zoom, setZoom] = useState(STARTING_ZOOM);
 
-  function setupControls(): void {
+  function setupControls() {
     map.current?.addControl(new mapboxgl.NavigationControl());
     map.current?.addControl(new mapboxgl.FullscreenControl());
-    map.current?.addControl(new HelloWorldControl());
+    //map.current?.addControl(new HelloWorldControl()); Commented for future reference
+  }
+
+  function setupUpdateInterval() {
+    setInterval(() => {
+      // Update markerManager._geojson with beacon locations
+      (async () => {
+        let beacons = await retrieveBeacons();
+        console.log(beacons);
+        markerManager.updateHackerLocations(beacons);
+        // Update map with any new markers in markerManager._geojson
+        markerManager.updateMarkers();
+      })();
+    }, MARKER_UPDATE_INTERAL_MS);
   }
 
   useLayoutEffect(() => {
@@ -124,9 +141,8 @@ const Map: React.FunctionComponent = () => {
         });
     });
     setupControls();
-    markerManager.addMarker("Tester", { latitude: _lat, longitude: _long });
-    console.log(markerManager._geojson);
-    setInterval(() => markerManager.updateMarkers(), MARKER_UPDATE_INTERAL_MS);
+    setupUpdateInterval();
+
     map.current?.resize();
 
     /*
