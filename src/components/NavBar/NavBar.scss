@@ -1,3 +1,17 @@
-.navbar {
-  padding: 1vh 2rem;
+$navbarBackgroundColor:rgb(15, 15, 15);
+$navbarPadding: 0 2rem;
+$navbarBrandImage: "../../../public/glitch.gif";
+$navbarBrandTextShadow: 0px 0px black;
+.navbar { 
+  padding: $navbarPadding;
+  // No choice but to use !important here, as the csh css uses it as well
+  background-color: $navbarBackgroundColor !important;
+}
+
+// Classname/ID duplication required for overriding specificity
+.navbar-brand#brand {
+  background-image: url($navbarBrandImage);
+  background-size: 100%;
+  background-position: center;
+  padding: 8px;
 }

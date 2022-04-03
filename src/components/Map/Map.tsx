@@ -1,14 +1,15 @@
 import React, { useRef, useState, useLayoutEffect, createRef } from "react";
 import mapboxgl from "mapbox-gl";
 import MarkerManager from "./Markers";
-import { retrieveBeacons } from "./APIMiddleware";
+
+import * as APIMiddleware from "./APIMiddleware";
 
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 import "./Map.scss";
 
 const MARKER_UPDATE_INTERAL_MS = 10000;
 
-const STARTING_COORDINATES = [43.08492599904675, -77.6674244050181];
+const STARTING_COORDINATES = [43.0847976948913, -77.67630082876184];
 const STARTING_PITCH = 45;
 const STARTING_BEARING = -17.6;
 const STARTING_ZOOM = 19;
@@ -51,22 +52,23 @@ const Map: React.FunctionComponent = () => {
   const [_long, setLng] = useState(STARTING_COORDINATES[1]);
   const [zoom, setZoom] = useState(STARTING_ZOOM);
 
-  function setupControls() {
+  function _setupControls() {
     map.current?.addControl(new mapboxgl.NavigationControl());
     map.current?.addControl(new mapboxgl.FullscreenControl());
     //map.current?.addControl(new HelloWorldControl()); Commented for future reference
   }
 
-  function setupUpdateInterval() {
+  async function _updateBeaconMarkers() {
+    let beacons = await APIMiddleware.retrieveBeacons();
+    markerManager.updateHackerLocations(beacons);
+    // Update map with any new markers in markerManager._geojson
+    markerManager.updateMarkers();
+  }
+
+  function _setupUpdateInterval() {
     setInterval(() => {
       // Update markerManager._geojson with beacon locations
-      (async () => {
-        let beacons = await retrieveBeacons();
-        console.log(beacons);
-        markerManager.updateHackerLocations(beacons);
-        // Update map with any new markers in markerManager._geojson
-        markerManager.updateMarkers();
-      })();
+      _updateBeaconMarkers();
     }, MARKER_UPDATE_INTERAL_MS);
   }
 
@@ -84,84 +86,74 @@ const Map: React.FunctionComponent = () => {
         bearing: STARTING_BEARING,
         maxBounds: MAX_BOUNDS,
       });
-    }
-    map.current?.on("load", () => {
-      // Insert the layer beneath any symbol layer.
-      const layers = map.current?.getStyle().layers;
-      const labelLayerId: string | undefined = layers?.find((layer: any) => {
-        let text_field: mapboxgl.Layout = layer.layout;
-        return layer.type === "symbol" && text_field?.hasOwnProperty("id");
-      })?.id;
-      // The 'building' layer in the Mapbox
-      // vector tileset contains building height data
-      // from OpenStreetMap.
-      map.current?.addLayer(
-        {
-          id: "add-3d-buildings",
-          source: "composite",
-          "source-layer": "building",
-          filter: ["==", "extrude", "true"],
-          type: "fill-extrusion",
-          minzoom: MIN_ZOOM,
-          paint: {
-            "fill-extrusion-color": BUILDING_FILL_COLOR,
-            // Use an 'interpolate' expression to
-            // add a smooth transition effect to
-            // the buildings as the user zooms in.
-            "fill-extrusion-height": [
-              "interpolate",
-              ["linear"],
-              ["zoom"],
-              15,
-              0,
-              15.05,
-              ["get", "height"],
-            ],
-            "fill-extrusion-base": [
-              "interpolate",
-              ["linear"],
-              ["zoom"],
-              15,
-              0,
-              15.05,
-              ["get", "min_height"],
-            ],
-            "fill-extrusion-opacity": BUILDING_FILL_OPACITY,
-          },
-        },
-        labelLayerId
-      );
+      if (map.current) {
+        map.current?.on("load", () => {
+          markerManager.initialize();
 
-      // Put layers on top of layer-view hierarchy, update font-size
-      layers
-        ?.filter((layer) => layer.id.includes("label"))
-        .forEach((layer) => {
-          map.current?.moveLayer(layer.id);
-          map.current?.setLayoutProperty(layer.id, "text-size", 16);
+          // Insert the layer beneath any symbol layer.
+          const layers = map.current?.getStyle().layers;
+          const labelLayerId: string | undefined = layers?.find(
+            (layer: any) => {
+              let text_field: mapboxgl.Layout = layer.layout;
+              return (
+                layer.type === "symbol" && text_field?.hasOwnProperty("id")
+              );
+            }
+          )?.id;
+          // The 'building' layer in the Mapbox
+          // vector tileset contains building height data
+          // from OpenStreetMap.
+          map.current?.addLayer(
+            {
+              id: "add-3d-buildings",
+              source: "composite",
+              "source-layer": "building",
+              filter: ["==", "extrude", "true"],
+              type: "fill-extrusion",
+              minzoom: MIN_ZOOM,
+              paint: {
+                "fill-extrusion-color": BUILDING_FILL_COLOR,
+                // Use an 'interpolate' expression to
+                // add a smooth transition effect to
+                // the buildings as the user zooms in.
+                "fill-extrusion-height": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  15,
+                  0,
+                  15.05,
+                  ["get", "height"],
+                ],
+                "fill-extrusion-base": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  15,
+                  0,
+                  15.05,
+                  ["get", "min_height"],
+                ],
+                "fill-extrusion-opacity": BUILDING_FILL_OPACITY,
+              },
+            },
+            labelLayerId
+          );
+
+          // Put layers on top of layer-view hierarchy, update font-size
+          layers
+            ?.filter((layer: mapboxgl.AnyLayer) => layer.id.includes("label"))
+            .forEach((layer: mapboxgl.AnyLayer) => {
+              map.current?.moveLayer(layer.id);
+              map.current?.setLayoutProperty(layer.id, "text-size", 16);
+            });
+          markerManager.updateMarkers();
+          _setupControls();
+          _setupUpdateInterval();
+          map.current?.resize();
         });
-    });
-    setupControls();
-    setupUpdateInterval();
-
-    map.current?.resize();
-
-    /*
-    Zoom resizing for markers -> do this later, in MarkerManager
-
-    map.current?.on("zoom", () => {
-      console.log("Zoom");
-      for (const feature of markerManager._geojson.features) {
-        const zoom = map.current?.getZoom() || 1;
-        const scalePercent = 1 + zoom - 8 * 0.4;
-        const svgElement = document
-          .getElementById(feature.name)
-          ?.getElementsByTagName("svg")[0];
-        if (svgElement) {
-          svgElement.style.transform = `scale(${scalePercent})`;
-          svgElement.style.transformOrigin = "bottom";
-        }
       }
-    });*/
+    }
   });
 
   useLayoutEffect(() => {

@@ -20,9 +20,9 @@ const NavBar: React.FunctionComponent = () => {
 
   return (
     <div>
-      <Navbar color="primary" dark expand="lg">
+      <Navbar id="navbar" color="primary" dark expand="lg">
         <Container>
-          <NavLink to="/" className={"navbar-brand"}>
+          <NavLink to="/" id="brand" className={"navbar-brand"}>
             Sentinel Security
           </NavLink>
           <NavbarToggler onClick={toggle} />
