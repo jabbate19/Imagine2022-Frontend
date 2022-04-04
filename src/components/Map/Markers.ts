@@ -1,15 +1,25 @@
 import mapboxgl, { GeoJSONSource, GeoJSONSourceRaw, Point } from "mapbox-gl";
 import { FeatureCollection, Feature, Position } from "geojson";
 import * as APIMiddleware from "./APIMiddleware";
-import { MutableMapRef, Beacon } from "./types";
+import {
+  MutableMapRef,
+  Beacon,
+  PolygonalFeatureCollection,
+  PolygonalFeature,
+} from "./types";
+import { v4 as uuidv4 } from "uuid";
 
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 import "./Markers.scss";
 
-const BEACON_MARKER_WIDTH = 0.05;
+const BEACON_MARKER_FILL_COLOR = "#20C20E";
+const BEACON_MARKER_FILL_OPACITY = 0.6;
+const BEACON_MARKER_RADIUS_KM = 0.01;
+
+const BEACON_GEN_RANDOMNESS_MAGNITUDE = 0.0005;
 
 class MarkerManager {
-  _geojson: { type: "geojson"; data: FeatureCollection };
+  _geojson: { type: "geojson"; data: PolygonalFeatureCollection };
   _map: MutableMapRef;
   updateRequired: Boolean;
   constructor(map: MutableMapRef) {
@@ -23,10 +33,42 @@ class MarkerManager {
     this._map = map;
     this.updateRequired = false; // True if marker was added and we haven't updated
   }
+  static generateFakeBeaconLocationData(
+    bounds: mapboxgl.LngLatBounds,
+    sections: number,
+    random: boolean = true
+  ): Beacon[] {
+    // Lat y, long x
+    const boundsObj = {
+      n: bounds.getNorth(),
+      e: bounds.getEast(),
+      s: bounds.getSouth(),
+      w: bounds.getWest(),
+    };
+    let dLat = (boundsObj.n - boundsObj.s) / sections;
+    let dLong = (boundsObj.e - boundsObj.w) / sections;
+    let values = [];
+    for (let lat = boundsObj.s; lat <= boundsObj.n; lat += dLat) {
+      for (let long = boundsObj.w; long <= boundsObj.e; long += dLong) {
+        let value: Beacon = {};
+        let uuid = uuidv4();
+        value[uuid] = {
+          position: [0, 0],
+          absolute_position: [
+            long + BEACON_GEN_RANDOMNESS_MAGNITUDE * Math.random(),
+            lat + BEACON_GEN_RANDOMNESS_MAGNITUDE * Math.random(),
+          ],
+          esps: {},
+          beacon_id: uuid,
+        };
+        values.push(value);
+      }
+    }
+    return values;
+  }
 
   initialize() {
     if (this._map.current) {
-      console.log(this._geojson);
       this._map.current.addSource("beacons", this._geojson);
       this._map.current.addLayer({
         id: "beacons",
@@ -34,8 +76,18 @@ class MarkerManager {
         source: "beacons", // reference the data source
         layout: {},
         paint: {
-          "fill-color": "#0080ff", // blue color fill
-          "fill-opacity": 0.01,
+          "fill-color": BEACON_MARKER_FILL_COLOR, // blue color fill
+          "fill-opacity": BEACON_MARKER_FILL_OPACITY,
+        },
+      });
+      this._map.current?.addLayer({
+        id: "outline",
+        type: "line",
+        source: "beacons",
+        layout: {},
+        paint: {
+          "line-color": "#000",
+          "line-width": 3,
         },
       });
     }
@@ -97,50 +149,53 @@ class MarkerManager {
     return this._geojson.data?.features;
   }
 
-  addMarker(coordinates: Position[], radius: number = 64) {
-    //coordinates.push(coordinates[0]);
-    this._geojson.data?.features.push({
-      type: "Feature",
-      geometry: {
-        type: "Polygon",
-        coordinates: [coordinates],
-      },
-      properties: {},
-    });
-    this.updateRequired = true;
-  }
-
-  removeMarker(name: string): void {
-    if (this._geojson.data) {
-      document.getElementById(name)?.remove();
-      /*this._geojson.data.features = this._geojson.data.features.filter(
-        (data) => data.name !== name
-      );*/
+  addMarker(name: string, center: Position) {
+    // Do not add if duplicate exists
+    if (
+      !this._geojson.data.features.map((feature) => feature.name).includes(name)
+    ) {
+      this._geojson.data.features.push({
+        name: name,
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            this._generateGeoJSONCircleCoordinates(
+              BEACON_MARKER_RADIUS_KM,
+              center
+            ),
+          ],
+        },
+        properties: {},
+      });
       this.updateRequired = true;
     }
+  }
+
+  removeMarker(coordinates: Position[][]) {
+    this._geojson.data.features.filter((feature) => {
+      feature.geometry.coordinates !== coordinates;
+    });
+    this.updateRequired = true;
   }
 
   updateHackerLocations(beacons: Beacon[]) {
     console.log("UPDATE");
     beacons.forEach((beacon_obj: Beacon) => {
-      // const beacon_id = Object.keys(beacon_obj)[0];
-      this.addMarker(
-        <Position[]>(
-          this._generateGeoJSONCircleCoordinates(BEACON_MARKER_WIDTH, [
-            -77.67630082876184,
-            43.0847976948913,
-          ])
-        )
-      );
-      console.log(beacon_obj);
+      const beacon_id = Object.keys(beacon_obj)[0];
+      this.addMarker(beacon_id, [
+        beacon_obj[beacon_id].absolute_position[0],
+        beacon_obj[beacon_id].absolute_position[1],
+      ]);
     });
   }
 
   updateMarkers() {
-    if (this._map.current) {
+    if (this._map.current && this.updateRequired) {
       (<GeoJSONSource>this._map.current.getSource("beacons")).setData(
         this._geojson.data
       );
+      this.updateRequired = false;
       // add markers to map
       //for (const feature of this._geojson.data.features) {
       /*if (

@@ -1,6 +1,20 @@
 import mapboxgl from "mapbox-gl";
-
+import {
+  FeatureCollection,
+  Feature,
+  Polygon,
+  GeoJsonProperties,
+} from "geojson";
 export type MutableMapRef = React.MutableRefObject<mapboxgl.Map | undefined>;
+
+export interface PolygonalFeatureCollection
+  extends FeatureCollection<Polygon, GeoJsonProperties> {
+  features: Array<PolygonalFeature>;
+}
+
+export interface PolygonalFeature extends Feature<Polygon, GeoJsonProperties> {
+  name: string;
+}
 
 export interface Beacon {
   [key: string]: {

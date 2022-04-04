@@ -13,13 +13,15 @@ const STARTING_COORDINATES = [43.0847976948913, -77.67630082876184];
 const STARTING_PITCH = 45;
 const STARTING_BEARING = -17.6;
 const STARTING_ZOOM = 19;
+
 const MIN_ZOOM = 17;
-const BUILDING_FILL_COLOR = "#BC4A3C";
-const BUILDING_FILL_OPACITY = 0.9;
-const MAX_BOUNDS = new mapboxgl.LngLatBounds(
+export const MAX_BOUNDS = new mapboxgl.LngLatBounds(
   new mapboxgl.LngLat(-77.687769, 43.078269),
   new mapboxgl.LngLat(-77.653682, 43.092718)
 );
+
+const BUILDING_FILL_COLOR = "#BC4A3C";
+const BUILDING_FILL_OPACITY = 0.9;
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN || "";
 
@@ -51,7 +53,6 @@ const Map: React.FunctionComponent = () => {
   const [_lat, setLat] = useState(STARTING_COORDINATES[0]);
   const [_long, setLng] = useState(STARTING_COORDINATES[1]);
   const [zoom, setZoom] = useState(STARTING_ZOOM);
-
   function _setupControls() {
     map.current?.addControl(new mapboxgl.NavigationControl());
     map.current?.addControl(new mapboxgl.FullscreenControl());
@@ -89,7 +90,7 @@ const Map: React.FunctionComponent = () => {
       if (map.current) {
         map.current?.on("load", () => {
           markerManager.initialize();
-
+          APIMiddleware.initialize();
           // Insert the layer beneath any symbol layer.
           const layers = map.current?.getStyle().layers;
           const labelLayerId: string | undefined = layers?.find(
