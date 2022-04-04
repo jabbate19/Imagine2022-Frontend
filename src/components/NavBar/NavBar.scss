@@ -1,11 +1,13 @@
-$navbarBackgroundColor:rgb(15, 15, 15);
-$navbarPadding: 0 2rem;
-$navbarBrandImage: "../../../public/glitch.gif";
-$navbarBrandTextShadow: 0px 0px black;
+@import "../../variables";
+
 .navbar { 
   padding: $navbarPadding;
   // No choice but to use !important here, as the csh css uses it as well
   background-color: $navbarBackgroundColor !important;
+  border-bottom: $navbarBorderBottom;
+}
+.navbar > .container {
+  max-width: $navbarContainerMaxWidth;
 }
 
 // Classname/ID duplication required for overriding specificity
@@ -13,5 +15,16 @@ $navbarBrandTextShadow: 0px 0px black;
   background-image: url($navbarBrandImage);
   background-size: 100%;
   background-position: center;
-  padding: 8px;
+  padding: 14px;
+  @include stroke(#000, 2px);
+}
+
+.nav-item > a:hover {
+  border-bottom: $navItemBorderBottomOnHover;
+  font-weight: bold;
+  
+}
+
+.dropdown.nav-item > a:hover{
+  border-bottom: none;
 }

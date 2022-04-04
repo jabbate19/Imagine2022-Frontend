@@ -1,0 +1,50 @@
+/**
+ * Generics
+ */
+ $hackerGreen: #20C20E;
+ $hackerGreenLinearGradient: linear-gradient(
+  90deg,
+  hsl(0deg 0% 0%) 1%,
+  hsl(120deg 100% 20%) 50%,
+  hsl(114deg 87% 41%) 99%
+);
+
+@mixin stroke($color: #000, $size: 1px) {
+  text-shadow:
+    -#{$size} -#{$size} 0 $color,
+     0        -#{$size} 0 $color,
+     #{$size} -#{$size} 0 $color,
+     #{$size}  0        0 $color,
+     #{$size}  #{$size} 0 $color,
+     0         #{$size} 0 $color,
+    -#{$size}  #{$size} 0 $color,
+    -#{$size}  0        0 $color;
+}
+/**
+ * Navbar
+ */
+ $navbarBackgroundColor:rgb(15, 15, 15);
+ $navbarPadding: 0 2rem;
+ $navbarBrandImage: "../../../public/glitch.gif";
+ $navbarBorderBottom: 3px solid;
+ $navbarContainerMaxWidth: 90%;
+ $navItemBorderBottomOnHover: 3px solid $hackerGreen;
+/**
+ * Markers
+ */
+$markerSize: 32px;
+$markerColor: #fd3939;
+$markerBorder: 3px black solid;
+
+/**
+ * Popups
+ */
+$popupTextColor: white;
+$popupBackgroundColor: #fd3939;
+$popupMaxWidth: 200px;
+$popupFont: "Open Sans", sans-serif;
+$popupBorder: 3px black solid;
+$popupBorderRadius: 10px;
+
+
+

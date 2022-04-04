@@ -55,8 +55,10 @@ class MarkerManager {
         value[uuid] = {
           position: [0, 0],
           absolute_position: [
-            long + BEACON_GEN_RANDOMNESS_MAGNITUDE * Math.random(),
-            lat + BEACON_GEN_RANDOMNESS_MAGNITUDE * Math.random(),
+            long +
+              BEACON_GEN_RANDOMNESS_MAGNITUDE * (random ? Math.random() : 1),
+            lat +
+              BEACON_GEN_RANDOMNESS_MAGNITUDE * (random ? Math.random() : 1),
           ],
           esps: {},
           beacon_id: uuid,
