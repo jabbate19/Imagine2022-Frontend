@@ -5,5 +5,5 @@ RUN npm install
 COPY ["./src", "./public", "LICENSE", ".env", "", "./"]
 COPY ./public ./public
 COPY ./tsconfig.json ./tsconfig.json
-EXPOSE 8080
+EXPOSE 3000
 CMD [ "npm", "start" ]
