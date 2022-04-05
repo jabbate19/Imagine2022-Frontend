@@ -36,11 +36,16 @@ export function initialize() {
 }
 
 export async function retrieveBeacons(): Promise<Beacon[]> {
-  return process.env.REACT_APP_DEVELOPER_MODE === "true"
-    ? await axios
-        .get(process.env.REACT_APP_API_BACKEND_URL || hostnameFallback)
-        .then((response: any) => _beaconJsonToList(response.data))
-    : testData;
+  return process.env.REACT_APP_DEVELOPER_MODE_OKD ||
+    process.env.REACT_APP_DEVELOPER_MODE === "true"
+    ? testData
+    : await axios
+        .get(
+          process.env.REACT_APP_API_BACKEND_URL_OKD ||
+            process.env.REACT_APP_API_BACKEND_URL ||
+            hostnameFallback
+        )
+        .then((response: any) => _beaconJsonToList(response.data));
 }
 
 if (require.main === module) {
