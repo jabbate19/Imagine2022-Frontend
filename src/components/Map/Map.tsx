@@ -22,8 +22,11 @@ export const MAX_BOUNDS = new mapboxgl.LngLatBounds(
 
 const BUILDING_FILL_COLOR = "#BC4A3C";
 const BUILDING_FILL_OPACITY = 0.9;
-
-mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN || "";
+// _OKD envvar used if run on OKD (can't edit .env on OKD)
+mapboxgl.accessToken =
+  process.env.REACT_APP_MAPBOX_TOKEN_OKD ||
+  process.env.REACT_APP_MAPBOX_TOKEN ||
+  "";
 
 /*
 Commented for future reference
