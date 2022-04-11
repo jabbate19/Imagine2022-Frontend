@@ -1,22 +1,20 @@
-import mapboxgl, { GeoJSONSource, GeoJSONSourceRaw, Point } from "mapbox-gl";
-import { FeatureCollection, Feature, Position } from "geojson";
-import * as APIMiddleware from "./APIMiddleware";
-import {
-  MutableMapRef,
-  Beacon,
-  PolygonalFeatureCollection,
-  PolygonalFeature,
-} from "./types";
+import mapboxgl, { GeoJSONSource } from "mapbox-gl";
+import { Position } from "geojson";
+import { MutableMapRef, Beacon, PolygonalFeatureCollection } from "./types";
 import { v4 as uuidv4 } from "uuid";
 
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 import "./Markers.scss";
 
-const BEACON_MARKER_FILL_COLOR = "#20C20E";
+const BEACON_MARKER_FILL_COLOR = "#00ff00";
 const BEACON_MARKER_FILL_OPACITY = 0.6;
-const BEACON_MARKER_RADIUS_KM = 0.01;
+const BEACON_MARKER_OUTLINE_COLOR = "#000";
+const BEACON_MARKER_OUTLINE_WIDTH = 3;
 
-const BEACON_GEN_RANDOMNESS_MAGNITUDE = 0.0005;
+const BEACON_MARKER_RADIUS_KM = 0.04;
+const BEACON_MARKER_RANDOMIZE_RADII = true;
+
+const BEACON_GEN_RANDOMNESS_MAGNITUDE = 0.003;
 
 class MarkerManager {
   _geojson: { type: "geojson"; data: PolygonalFeatureCollection };
@@ -53,12 +51,10 @@ class MarkerManager {
         let value: Beacon = {};
         let uuid = uuidv4();
         value[uuid] = {
-          position: [0, 0],
+          position: [-69, -69],
           absolute_position: [
-            long +
-              BEACON_GEN_RANDOMNESS_MAGNITUDE * (random ? Math.random() : 1),
-            lat +
-              BEACON_GEN_RANDOMNESS_MAGNITUDE * (random ? Math.random() : 1),
+            long + MarkerManager._random(BEACON_GEN_RANDOMNESS_MAGNITUDE),
+            lat + MarkerManager._random(BEACON_GEN_RANDOMNESS_MAGNITUDE),
           ],
           esps: {},
           beacon_id: uuid,
@@ -88,11 +84,17 @@ class MarkerManager {
         source: "beacons",
         layout: {},
         paint: {
-          "line-color": "#000",
-          "line-width": 3,
+          "line-color": BEACON_MARKER_OUTLINE_COLOR,
+          "line-width": BEACON_MARKER_OUTLINE_WIDTH,
         },
       });
     }
+  }
+
+  static _random(magnitude: number) {
+    return Math.random() < 0.5
+      ? -magnitude * Math.random()
+      : magnitude * Math.random();
   }
 
   _generateGeoJSONCircleCoordinates(
@@ -110,7 +112,6 @@ class MarkerManager {
       theta = (i / points) * (2 * Math.PI);
       x = distanceX * Math.cos(theta);
       y = distanceY * Math.sin(theta);
-
       ret.push([center[0] + x, center[1] + y]);
     }
     // Complete polygon by pushing initial point
@@ -163,7 +164,9 @@ class MarkerManager {
           type: "Polygon",
           coordinates: [
             this._generateGeoJSONCircleCoordinates(
-              BEACON_MARKER_RADIUS_KM,
+              BEACON_MARKER_RANDOMIZE_RADII
+                ? MarkerManager._random(BEACON_MARKER_RADIUS_KM)
+                : BEACON_MARKER_RADIUS_KM,
               center
             ),
           ],
@@ -182,7 +185,6 @@ class MarkerManager {
   }
 
   updateHackerLocations(beacons: Beacon[]) {
-    console.log("UPDATE");
     beacons.forEach((beacon_obj: Beacon) => {
       const beacon_id = Object.keys(beacon_obj)[0];
       this.addMarker(beacon_id, [

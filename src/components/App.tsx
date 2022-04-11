@@ -1,7 +1,11 @@
 import React, { Component } from "react";
-import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
-import { withOidcSecure } from "@axa-fr/react-oidc-context";
-import { Home } from "./index";
+import {
+  Switch,
+  Route,
+  Redirect,
+  BrowserRouter as Router,
+} from "react-router-dom";
+import { Home, About, Contact } from "./index";
 import PageContainer from "../containers/PageContainer";
 
 class App extends Component {
@@ -10,7 +14,10 @@ class App extends Component {
       <Router>
         <PageContainer>
           <Switch>
-            <Route exact path="/" component={Home} />
+            <Route path="/about" component={About} />
+            <Route path="/contact" component={Contact} />
+            <Route path="/" component={Home} />
+            <Route render={() => <Redirect to="/" />} />
           </Switch>
         </PageContainer>
       </Router>

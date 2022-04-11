@@ -1,9 +1,22 @@
 .map-container {
   text-align: left;
-  height: 94vh;
+  height: 93vh;
   width: 100vw;
   margin: 0;
   padding: 0;
+}
+
+#info-message-box {
+  position: absolute;
+  width: auto;
+  height: auto;
+  right: 1vw;
+  bottom: 1vh;
+  z-index: 4;
+  color: white;
+  background-color: black;
+  padding: 10px;
+  font-size: 1.2rem;
 }
 
 #content-container {

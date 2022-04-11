@@ -35,13 +35,13 @@ const NavBar: React.FunctionComponent = () => {
               </NavItem>
 
               <NavItem>
-                <NavLink to="#" className={"nav-link"}>
+                <NavLink to="/about" id="about" className={"nav-link"}>
                   About
                 </NavLink>
               </NavItem>
 
               <NavItem>
-                <NavLink to="#" className={"nav-link"}>
+                <NavLink to="/contact" className={"nav-link"}>
                   Contact
                 </NavLink>
               </NavItem>

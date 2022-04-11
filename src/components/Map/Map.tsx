@@ -6,6 +6,7 @@ import * as APIMiddleware from "./APIMiddleware";
 
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 import "./Map.scss";
+import "../../glitchytext.scss";
 
 const MARKER_UPDATE_INTERAL_MS = 10000;
 
@@ -53,6 +54,8 @@ const Map: React.FunctionComponent = () => {
   const mapContainer: React.RefObject<HTMLDivElement> = createRef();
   const map = useRef<mapboxgl.Map>();
   const markerManager = new MarkerManager(map);
+  let _updateInterval: ReturnType<typeof setInterval>;
+  const [_loadingMarkers, setLoadingMarkers] = useState(true);
   const [_lat, setLat] = useState(STARTING_COORDINATES[0]);
   const [_long, setLng] = useState(STARTING_COORDINATES[1]);
   const [zoom, setZoom] = useState(STARTING_ZOOM);
@@ -63,17 +66,24 @@ const Map: React.FunctionComponent = () => {
   }
 
   async function _updateBeaconMarkers() {
+    setLoadingMarkers(true);
     let beacons = await APIMiddleware.retrieveBeacons();
     markerManager.updateHackerLocations(beacons);
     // Update map with any new markers in markerManager._geojson
     markerManager.updateMarkers();
+    setLoadingMarkers(false);
   }
 
   function _setupUpdateInterval() {
-    setInterval(() => {
+    return setInterval(() => {
       // Update markerManager._geojson with beacon locations
       _updateBeaconMarkers();
     }, MARKER_UPDATE_INTERAL_MS);
+  }
+
+  function _cleanup() {
+    map.current = undefined;
+    clearInterval(_updateInterval);
   }
 
   useLayoutEffect(() => {
@@ -153,8 +163,14 @@ const Map: React.FunctionComponent = () => {
             });
           markerManager.updateMarkers();
           _setupControls();
-          _setupUpdateInterval();
+          _updateInterval = _setupUpdateInterval();
           map.current?.resize();
+          // Perform page-switch cleanup operations
+          [].slice
+            .call(document.getElementsByClassName("nav-link"))
+            .forEach((navlink: HTMLAnchorElement) =>
+              navlink.addEventListener("click", _cleanup)
+            );
         });
       }
     }
@@ -169,7 +185,27 @@ const Map: React.FunctionComponent = () => {
       }
     });
   });
-  return <div ref={mapContainer} className="map-container"></div>;
+
+  useLayoutEffect(() => {
+    const message_box = document.getElementById("info-message-box");
+    console.log(_loadingMarkers);
+    if (message_box)
+      message_box.style.visibility = _loadingMarkers ? "visible" : "hidden";
+  }, [_loadingMarkers]);
+
+  return (
+    <div ref={mapContainer} className="map-container">
+      <div className="environment"></div>
+      <p
+        className="hero glitch layers"
+        id="info-message-box"
+        data-text="Updating markers..."
+      >
+        Updating markers...
+      </p>
+      <span>Updating markers...</span>
+    </div>
+  );
 };
 
 export default Map;

@@ -4,8 +4,12 @@
   padding: $navbarPadding;
   // No choice but to use !important here, as the csh css uses it as well
   background-color: $navbarBackgroundColor !important;
-  border-bottom: $navbarBorderBottom;
+  position: relative;
+  z-index: 10;
 }
+
+
+
 .navbar > .container {
   max-width: $navbarContainerMaxWidth;
 }
@@ -27,4 +31,16 @@
 
 .dropdown.nav-item > a:hover{
   border-bottom: none;
+}
+
+@media (max-width: 370px) {
+  .navbar-toggler, .navbar-brand#brand {
+    margin: auto;
+  }
+}
+
+@media (max-width: 500px) {
+  .navbar {
+    padding: 0;
+  }
 }
