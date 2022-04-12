@@ -1,9 +1,9 @@
 FROM node:14
-WORKDIR /usr/src/app
+WORKDIR /usr/sentinelsecurity/
 COPY package*.json ./
 RUN npm install
-COPY ["./src", "./public", "LICENSE", ".env", "./"]
-COPY ./public ./public
-COPY ./tsconfig.json ./tsconfig.json
+COPY ["LICENSE", "./tsconfig.json", ".env", "./"]
+COPY "./src" "./src"
+COPY "./public" "./public"
 EXPOSE 3000
 CMD [ "npm", "start" ]
