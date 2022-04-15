@@ -1,6 +1,6 @@
 import React from "react";
 
-const NotAuthenticated: React.FunctionComponent = () => {
+export const NotAuthenticated: React.FunctionComponent = () => {
   return <>Not NotAuthenticated</>;
 };
 

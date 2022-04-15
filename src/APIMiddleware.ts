@@ -1,4 +1,5 @@
 const axios = require("axios").default;
+import { DEVELOPER_MODE } from "./config";
 import MarkerManager from "./components/Markers";
 import { MAX_BOUNDS } from "./components/Map";
 import { Beacon } from "./components/types";
@@ -33,8 +34,7 @@ export function initialize() {
 }
 
 export async function retrieveBeacons(): Promise<Beacon[]> {
-  return process.env.REACT_APP_DEVELOPER_MODE_OKD ||
-    process.env.REACT_APP_DEVELOPER_MODE === "true"
+  return DEVELOPER_MODE
     ? testData
     : await axios
         .get(
