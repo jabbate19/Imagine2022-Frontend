@@ -1,26 +1,23 @@
 import React, { useRef, useState, useLayoutEffect, createRef } from "react";
 import mapboxgl from "mapbox-gl";
-import MarkerManager from "./Markers";
-
-import * as APIMiddleware from "./APIMiddleware";
-
+import MarkerManager from "../Markers";
+import { hideParentOnClick } from "../AdminPanel";
+import * as APIMiddleware from "../../APIMiddleware";
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 import "./Map.scss";
 import "../../glitchytext.scss";
 
 const MARKER_UPDATE_INTERAL_MS = 10000;
-
+const LOADING_MARKERS_TIMEOUT = 5000;
 const STARTING_COORDINATES = [43.0847976948913, -77.67630082876184];
 const STARTING_PITCH = 45;
 const STARTING_BEARING = -17.6;
 const STARTING_ZOOM = 19;
-
 const MIN_ZOOM = 17;
 export const MAX_BOUNDS = new mapboxgl.LngLatBounds(
   new mapboxgl.LngLat(-77.687769, 43.078269),
   new mapboxgl.LngLat(-77.653682, 43.092718)
 );
-
 const BUILDING_FILL_COLOR = "#BC4A3C";
 const BUILDING_FILL_OPACITY = 0.9;
 // _OKD envvar used if run on OKD (can't edit .env on OKD)
@@ -29,18 +26,25 @@ mapboxgl.accessToken =
   process.env.REACT_APP_MAPBOX_TOKEN ||
   "";
 
-/*
-Commented for future reference
-
-class HelloWorldControl {
+class AdminPanelToggler {
   _map: mapboxgl.Map | undefined;
   _container: HTMLDivElement | undefined;
 
   onAdd(map: mapboxgl.Map) {
     this._map = map;
     this._container = document.createElement("div");
-    this._container.className = "mapboxgl-ctrl";
-    this._container.textContent = "Hello, world";
+    this._container.classList.add("mapboxgl-ctrl", "mapboxgl-ctrl-group");
+    let _adminPanel = document.getElementById("admin-panel");
+    let _button = document.createElement("button");
+    _button.id = "admin-panel-toggle";
+    _button.classList.add("mapboxgl-ctrl-icon");
+    _button.textContent = "Admin Panel";
+    if (_adminPanel)
+      _button.addEventListener(
+        "click",
+        hideParentOnClick.bind(null, _adminPanel)
+      );
+    this._container.appendChild(_button);
     return this._container;
   }
 
@@ -48,9 +52,8 @@ class HelloWorldControl {
     this._container?.parentNode?.removeChild(this._container);
     this._map = undefined;
   }
-}*/
-
-const Map: React.FunctionComponent = () => {
+}
+export const Map: React.FunctionComponent = () => {
   const mapContainer: React.RefObject<HTMLDivElement> = createRef();
   const map = useRef<mapboxgl.Map>();
   const markerManager = new MarkerManager(map);
@@ -59,10 +62,11 @@ const Map: React.FunctionComponent = () => {
   const [_lat, setLat] = useState(STARTING_COORDINATES[0]);
   const [_long, setLng] = useState(STARTING_COORDINATES[1]);
   const [zoom, setZoom] = useState(STARTING_ZOOM);
+
   function _setupControls() {
+    map.current?.addControl(new AdminPanelToggler(), "top-left");
     map.current?.addControl(new mapboxgl.NavigationControl());
     map.current?.addControl(new mapboxgl.FullscreenControl());
-    //map.current?.addControl(new HelloWorldControl()); Commented for future reference
   }
 
   async function _updateBeaconMarkers() {
@@ -188,24 +192,17 @@ const Map: React.FunctionComponent = () => {
 
   useLayoutEffect(() => {
     const message_box = document.getElementById("info-message-box");
-    console.log(_loadingMarkers);
-    if (message_box)
+    if (message_box) {
       message_box.style.visibility = _loadingMarkers ? "visible" : "hidden";
+      setTimeout(() => {
+        console.error("Failed to load markers...");
+        message_box.classList.add("failed");
+        message_box.textContent = "Marker Update Failed!";
+      }, LOADING_MARKERS_TIMEOUT);
+    }
   }, [_loadingMarkers]);
 
-  return (
-    <div ref={mapContainer} className="map-container">
-      <div className="environment"></div>
-      <p
-        className="hero glitch layers"
-        id="info-message-box"
-        data-text="Updating markers..."
-      >
-        Updating markers...
-      </p>
-      <span>Updating markers...</span>
-    </div>
-  );
+  return <div ref={mapContainer} className="map-container"></div>;
 };
 
 export default Map;

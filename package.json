@@ -2,6 +2,13 @@
   "name": "sentinel-security-frontend",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "react-scripts build",
+    "start": "react-scripts start",
+    "test": "react-scripts test --env=jsdom --passWithNoTests",
+    "eject": "react-scripts eject",
+    "lint": "eslint src/**/*.ts src/**/*.tsx"
+  },
   "dependencies": {
     "@axa-fr/react-oidc-context": "^3.1.5",
     "@testing-library/jest-dom": "^4.2.4",
@@ -23,13 +30,6 @@
     "sass": "^1.49.9",
     "three": "^0.139.0",
     "uuid": "^8.3.2"
-  },
-  "scripts": {
-    "build": "react-scripts build",
-    "start": "react-scripts start",
-    "test": "react-scripts test --env=jsdom --passWithNoTests",
-    "eject": "react-scripts eject",
-    "lint": "eslint src/**/*.ts src/**/*.tsx"
   },
   "devDependencies": {
     "@types/jest": "^24.0.0",

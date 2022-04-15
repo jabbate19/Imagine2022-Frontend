@@ -1,6 +1,6 @@
 import mapboxgl, { GeoJSONSource } from "mapbox-gl";
 import { Position } from "geojson";
-import { MutableMapRef, Beacon, PolygonalFeatureCollection } from "./types";
+import { MutableMapRef, Beacon, PolygonalFeatureCollection } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
@@ -155,7 +155,9 @@ class MarkerManager {
   addMarker(name: string, center: Position) {
     // Do not add if duplicate exists
     if (
-      !this._geojson.data.features.map((feature) => feature.name).includes(name)
+      !this._geojson.data.features
+        .map((feature: any) => feature.name)
+        .includes(name)
     ) {
       this._geojson.data.features.push({
         name: name,
@@ -178,7 +180,7 @@ class MarkerManager {
   }
 
   removeMarker(coordinates: Position[][]) {
-    this._geojson.data.features.filter((feature) => {
+    this._geojson.data.features.filter((feature: any) => {
       feature.geometry.coordinates !== coordinates;
     });
     this.updateRequired = true;
@@ -196,6 +198,7 @@ class MarkerManager {
 
   updateMarkers() {
     if (this._map.current && this.updateRequired) {
+      // <geojsonsource>
       (<GeoJSONSource>this._map.current.getSource("beacons")).setData(
         this._geojson.data
       );

@@ -8,11 +8,11 @@ import {
   oidcLog,
   InMemoryWebStorage,
 } from "@axa-fr/react-oidc-context";
-import oidcConfiguration from "./config";
-import { LoggingIn } from "./callbacks/LoggingIn";
-import { Authenticating } from "./callbacks/Authenticating";
-import { NotAuthenticated } from "./callbacks/NotAuthenticated";
-import { NotAuthorized } from "./callbacks/NotAuthorized";
+import { oidcConfiguration } from "./config";
+import LoggingIn from "./callbacks/LoggingIn";
+import Authenticating from "./callbacks/Authenticating";
+import NotAuthenticated from "./callbacks/NotAuthenticated";
+import NotAuthorized from "./callbacks/NotAuthorized";
 
 ReactDOM.render(
   <AuthenticationProvider

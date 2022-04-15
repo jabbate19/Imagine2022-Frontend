@@ -1,10 +1,9 @@
 const axios = require("axios").default;
-import { MAX_BOUNDS } from "./Map";
-import MarkerManager from "./Markers";
-import { Beacon } from "./types";
+import MarkerManager from "./components/Markers";
+import { MAX_BOUNDS } from "./components/Map";
+import { Beacon } from "./components/types";
 
 const TEST_DATA_SECTION_COUNT = 10;
-
 let testData: Beacon[];
 
 const hostnameFallback =
@@ -20,8 +19,6 @@ function _beaconJsonToList(json: any): Beacon[] {
     const obj: any = {};
     json[key].absolute_position = _flipArray(json[key].absolute_position);
     json[key].position = _flipArray(json[key].position);
-    // More properties need to be flipped but we only really use
-    // absolute position anyways right now
     obj[key] = json[key];
     list.push(obj);
   });
@@ -48,9 +45,11 @@ export async function retrieveBeacons(): Promise<Beacon[]> {
         .then((response: any) => _beaconJsonToList(response.data));
 }
 
+async function main() {
+  let result = await retrieveBeacons();
+  console.log(result);
+}
+
 if (require.main === module) {
-  (async () => {
-    let result = await retrieveBeacons();
-    console.log(result);
-  })();
+  main();
 }

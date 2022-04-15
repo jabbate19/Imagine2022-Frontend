@@ -1,5 +1,12 @@
+const _strtobool = (str: string | undefined, returnOnFail: any = null) =>
+  str === "true" ? true : str === "false" ? false : returnOnFail;
+export const developerMode =
+  _strtobool(process.env["REACT_APP_DEVELOPER_MODE_OKD"]) ||
+  _strtobool(process.env["REACT_APP_DEVELOPER_MODE"]) ||
+  true;
+
 // SSO
-const configuration = {
+export const oidcConfiguration = {
   client_id:
     process.env.REACT_APP_SSO_CLIENT_ID_OKD ||
     process.env.REACT_APP_SSO_CLIENT_ID,
@@ -26,5 +33,3 @@ const configuration = {
   automaticSilentRenew: true,
   loadUserInfo: true,
 };
-
-export default configuration;

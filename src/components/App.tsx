@@ -8,7 +8,7 @@ import {
 import { Home, About, Contact } from "./index";
 import PageContainer from "../containers/PageContainer";
 
-class App extends Component {
+export class App extends Component {
   render() {
     return (
       <Router>

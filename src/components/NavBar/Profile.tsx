@@ -8,8 +8,8 @@ import {
 } from "reactstrap";
 import "./Profile.scss";
 
-const Profile: React.FunctionComponent = () => {
-  const { oidcUser, logout } = useReactOidc();
+export const Profile: React.FunctionComponent = () => {
+  const { oidcUser, login, logout } = useReactOidc();
   const name = oidcUser?.profile.name || "Guest";
   const user_avatar_url = `https://profiles.csh.rit.edu/image/${
     oidcUser?.profile.preferred_username || "potate"
@@ -23,7 +23,7 @@ const Profile: React.FunctionComponent = () => {
     </>
   ) : (
     <>
-      <DropdownItem>Login</DropdownItem>
+      <DropdownItem onClick={() => login()}>Login</DropdownItem>
     </>
   );
   // Authenticated
