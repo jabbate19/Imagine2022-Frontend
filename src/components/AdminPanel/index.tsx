@@ -1,28 +1,7 @@
 import React, { useEffect } from "react";
 import { Button } from "reactstrap";
+import { hideParentOnClick } from "../../misc/utility";
 import "./AdminPanel.scss";
-
-export const swapVisibility = (elem: HTMLElement, visNullDefault?: string) => {
-  elem.style.visibility =
-    elem.style.visibility !== ""
-      ? elem.style.visibility === "visible"
-        ? "hidden"
-        : "visible"
-      : typeof visNullDefault !== "undefined"
-      ? visNullDefault
-      : "hidden";
-};
-
-export const hideParentOnClick = (eventOrElement: MouseEvent | HTMLElement) => {
-  let elem =
-    eventOrElement instanceof MouseEvent
-      ? (eventOrElement.target as HTMLElement).parentNode
-      : eventOrElement;
-  [].slice
-    .call(elem?.children)
-    .forEach((child: HTMLElement) => swapVisibility(child));
-  swapVisibility(elem as HTMLElement);
-};
 
 export const AdminPanel: React.FunctionComponent = () => {
   useEffect(() => {

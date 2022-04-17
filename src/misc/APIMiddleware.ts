@@ -1,14 +1,16 @@
 const axios = require("axios").default;
-import { DEVELOPER_MODE } from "./config";
-import MarkerManager from "./components/Markers";
-import { MAX_BOUNDS } from "./components/Map";
-import { Beacon } from "./components/types";
+import {
+  API_BACKEND_URL,
+  API_BEACON_LOCATIONS_URL,
+  DEVELOPER_MODE,
+} from "./config";
+import { buildPath } from "../misc/utility";
+import MarkerManager from "../components/Markers";
+import { MAX_BOUNDS } from "../components/Map";
+import { Beacon } from "../components/types";
 
 const TEST_DATA_SECTION_COUNT = 10;
 let testData: Beacon[];
-
-const hostnameFallback =
-  "https://imagine-2022-backend-git-imagine2022-backend.apps.okd4.csh.rit.edu";
 
 function _flipArray<T>(input: [T, T]): [T, T] {
   return [input[1], input[0]];
@@ -37,11 +39,7 @@ export async function retrieveBeacons(): Promise<Beacon[]> {
   return DEVELOPER_MODE
     ? testData
     : await axios
-        .get(
-          process.env.REACT_APP_API_BACKEND_URL_OKD ||
-            process.env.REACT_APP_API_BACKEND_URL ||
-            hostnameFallback
-        )
+        .get(buildPath(API_BACKEND_URL, API_BEACON_LOCATIONS_URL))
         .then((response: any) => _beaconJsonToList(response.data));
 }
 

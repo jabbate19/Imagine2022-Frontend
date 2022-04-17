@@ -10,7 +10,7 @@ import "./Profile.scss";
 
 export const Profile: React.FunctionComponent = () => {
   const { oidcUser, login, logout } = useReactOidc();
-  const name = oidcUser?.profile.name || "Guest";
+  const name = oidcUser?.profile.preferred_username || "Guest";
   const user_avatar_url = `https://profiles.csh.rit.edu/image/${
     oidcUser?.profile.preferred_username || "potate"
   }`;

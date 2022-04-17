@@ -1,8 +1,9 @@
 import React, { useRef, useState, useLayoutEffect, createRef } from "react";
 import mapboxgl from "mapbox-gl";
+import { MAPBOX_TOKEN } from "../../misc/config";
 import MarkerManager from "../Markers";
-import { hideParentOnClick } from "../AdminPanel";
-import * as APIMiddleware from "../../APIMiddleware";
+import { hideParentOnClick } from "../../misc/utility";
+import * as APIMiddleware from "../../misc/APIMiddleware";
 import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 import "./Map.scss";
 import "../../glitchytext.scss";
@@ -20,11 +21,8 @@ export const MAX_BOUNDS = new mapboxgl.LngLatBounds(
 );
 const BUILDING_FILL_COLOR = "#BC4A3C";
 const BUILDING_FILL_OPACITY = 0.9;
-// _OKD envvar used if run on OKD (can't edit .env on OKD)
-mapboxgl.accessToken =
-  process.env.REACT_APP_MAPBOX_TOKEN_OKD ||
-  process.env.REACT_APP_MAPBOX_TOKEN ||
-  "";
+
+mapboxgl.accessToken = MAPBOX_TOKEN;
 
 class AdminPanelToggler {
   _map: mapboxgl.Map | undefined;
@@ -195,9 +193,11 @@ export const Map: React.FunctionComponent = () => {
     if (message_box) {
       message_box.style.visibility = _loadingMarkers ? "visible" : "hidden";
       setTimeout(() => {
-        console.error("Failed to load markers...");
-        message_box.classList.add("failed");
-        message_box.textContent = "Marker Update Failed!";
+        if (_loadingMarkers) {
+          console.error("Failed to load markers...");
+          message_box.classList.add("failed");
+          message_box.textContent = "Marker Update Failed!";
+        }
       }, LOADING_MARKERS_TIMEOUT);
     }
   }, [_loadingMarkers]);

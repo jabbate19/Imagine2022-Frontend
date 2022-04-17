@@ -20,6 +20,7 @@
     -#{$size}  #{$size} 0 $color,
     -#{$size}  0        0 $color;
 }
+
 /**
  * Navbar
  */
@@ -29,12 +30,14 @@
  $navbarBorderBottom: 3px solid;
  $navbarContainerMaxWidth: 90%;
  $navItemBorderBottomOnHover: 3px solid $hackerGreen;
+
 /**
  * Markers
  */
 $markerSize: 32px;
 $markerColor: #fd3939;
 $markerBorder: 3px black solid;
+
 /**
  * Popups
  */
@@ -44,3 +47,8 @@ $popupMaxWidth: 200px;
 $popupFont: "Open Sans", sans-serif;
 $popupBorder: 3px black solid;
 $popupBorderRadius: 10px;
+
+/**
+ * GUI Overlay
+ */
+ $guiOverlayMargin: 10px;

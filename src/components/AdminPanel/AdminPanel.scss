@@ -1,19 +1,31 @@
 @import "../../variables.scss";
-$_BUTTON_COLOR_HIGHLIGHT: rgb(0, 0, 0);
+$_buttonBackground: black;
+$_buttonTextColorDefault: $hackerGreen;
+$_buttonTextColorHover: darken($hackerGreen, 10%);
 
 #admin-panel {
   visibility: none;
   position: absolute;
   right: 0;
-  bottom: 0;  
+  bottom: 0;
   width: 40vw;
   height: 25vh;
   min-width: 300px;
   min-height: 225px;
-  z-index: 5;
-  background-color: whitesmoke;
-  border: 1px solid darkgray;
   padding: 15px;
+  margin: $guiOverlayMargin;
+  z-index: 5;
+  color: $hackerGreen;
+  background-color: black;
+  border: 1px solid $hackerGreen;
+}
+
+#admin-panel button {
+  text-align: center;
+  margin: 0 10px 10px 0;
+  color: $hackerGreen;
+  background-color: black;
+  border: 1px solid $hackerGreen;
 }
 
 #admin-panel-toggle {
@@ -23,24 +35,16 @@ $_BUTTON_COLOR_HIGHLIGHT: rgb(0, 0, 0);
   font-size: 1.1rem;
   line-height: 12px;
   color: $hackerGreen;
-  background-color: $_BUTTON_COLOR_HIGHLIGHT;
+  background-color: black;
   border: 1px solid $hackerGreen;
   border-radius: inherit;
 }
 
-#admin-panel button {
-  text-align: center;
-  margin: 0 10px 10px 0;
-}
 
-#admin-panel button {
-  text-align: center;
-  margin: 0 10px 10px 0;
-}
 
 /* Mode Buttons */
 #admin-panel button.selected {
-  background-color: $_BUTTON_COLOR_HIGHLIGHT;
+  background-color: black;
 }
 
 #admin-panel > button#close-button {
