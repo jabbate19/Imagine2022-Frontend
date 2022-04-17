@@ -5,7 +5,7 @@ const _strtobool = (str: string | undefined, returnOnFail: any = null) =>
 export const DEVELOPER_MODE =
   _strtobool(process.env.REACT_APP_DEVELOPER_MODE_OKD) ||
   _strtobool(process.env.REACT_APP_DEVELOPER_MODE) ||
-  true;
+  false;
 
 export const MAPBOX_TOKEN =
   process.env.REACT_APP_MAPBOX_TOKEN_OKD ||
