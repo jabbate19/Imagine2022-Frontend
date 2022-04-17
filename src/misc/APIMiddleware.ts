@@ -36,6 +36,8 @@ export function initialize() {
 }
 
 export async function retrieveBeacons(): Promise<Beacon[]> {
+  console.log("Path: " + buildPath(API_BACKEND_URL, API_BEACON_LOCATIONS_URL));
+  console.log("Developer: " + DEVELOPER_MODE);
   return DEVELOPER_MODE
     ? testData
     : await axios

@@ -70,6 +70,7 @@ export const Map: React.FunctionComponent = () => {
   async function _updateBeaconMarkers() {
     setLoadingMarkers(true);
     let beacons = await APIMiddleware.retrieveBeacons();
+    console.log("Beacons: " + beacons);
     markerManager.updateHackerLocations(beacons);
     // Update map with any new markers in markerManager._geojson
     markerManager.updateMarkers();
